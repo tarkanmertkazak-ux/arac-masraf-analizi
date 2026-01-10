@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Aracını Bil | Giriş</title>
+
+<style>
+/* ===== GENEL ===== */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  height:100vh;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+}
+
+/* ===== ANA KAPSAYICI ===== */
+.wrapper{
+  width:100%;
+  max-width:420px;
+  text-align:center;
+}
+
+/* ===== BAŞLIK ===== */
+.logo{
+  margin-bottom:25px;
+}
+.logo h1{
+  margin:0;
+  font-size:36px;
+  font-weight:bold;
+}
+.logo p{
+  margin-top:8px;
+  font-size:15px;
+  opacity:.85;
+}
+
+/* ===== KART ===== */
+.box{
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(12px);
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.35);
+}
+
+/* ===== FORM ===== */
+input{
+  width:100%;
+  padding:14px;
+  margin-top:14px;
+  border-radius:10px;
+  border:none;
+  outline:none;
+  font-size:16px;
+}
+
+input::placeholder{
+  color:#999;
+}
+
+/* ===== BUTONLAR ===== */
+button{
+  width:100%;
+  padding:14px;
+  margin-top:14px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:#4aa3ff;
+  color:#fff;
+  font-weight:bold;
+}
+
+.btn-secondary{
+  background:#ecf0f1;
+  color:#2c3e50;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+/* ===== MESAJ ===== */
+.error{
+  color:#ff7675;
+  margin-top:12px;
+  font-size:14px;
+}
+.success{
+  color:#2ecc71;
+  margin-top:12px;
+  font-size:14px;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  margin-top:18px;
+  font-size:12px;
+  opacity:.7;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <div class="logo">
+    <h1>Aracını Bil</h1>
+    <p>Paranı değil, veriyi dinle. Aracını bilinçli seç.</p>
+  </div>
+
+  <div class="box">
+    <input type="email" id="email" placeholder="E-posta">
+    <input type="password" id="password" placeholder="Şifre">
+
+    <button class="btn-primary" onclick="giris()">Giriş Yap</button>
+    <button class="btn-secondary" onclick="kayit()">Kayıt Ol</button>
+
+    <div id="mesaj"></div>
+  </div>
+
+  <div class="footer">
+    Gerçek kullanıcı deneyimlerine dayalı araç analizi
+  </div>
+
+</div>
+
+<script>
+// === KULLANICILAR ===
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+// === HASH ===
+function hash(str){
+  let h=0;
+  for(let i=0;i<str.length;i++){
+    h=(h<<5)-h+str.charCodeAt(i);
+    h|=0;
+  }
+  return h.toString();
+}
+
+// === KAYIT ===
+function kayit(){
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+
+  if(!email||!password){
+    mesaj("Tüm alanları doldur",false);return;
+  }
+
+  if(users.some(u=>u.email===email)){
+    mesaj("Bu e-posta zaten kayıtlı",false);return;
+  }
+
+  users.push({
+    email,
+    passwordHash:hash(password)
+  });
+
+  localStorage.setItem("users",JSON.stringify(users));
+
+  // 🔴 ÇOK ÖNEMLİ: YENİ KAYITTA HER ŞEY SIFIRLANIR
+  localStorage.removeItem("secimYapildi");
+  localStorage.removeItem("kullaniciTipi");
+  localStorage.removeItem("aktifArac");
+
+  mesaj("Kayıt başarılı. Şimdi giriş yapabilirsin.",true);
+}
+
+// === GİRİŞ ===
+function giris(){
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+
+  const user=users.find(u=>u.email===email);
+  if(!user){
+    mesaj("Bu e-posta kayıtlı değil",false);return;
+  }
+
+  if(user.passwordHash!==hash(password)){
+    mesaj("Şifre yanlış",false);return;
+  }
+
+  // === GİRİŞ BAŞARILI ===
+  localStorage.setItem("userEmail",email);
+
+  // 🔴 SEÇİM YAPILMADIYSA MUTLAKA SECIM.HTML
+  if(!localStorage.getItem("secimYapildi")){
+    window.location.href="secim.html";
+  }else{
+    window.location.href="arac-sec.html";
+  }
+}
+
+// === MESAJ ===
+function mesaj(txt,ok){
+  document.getElementById("mesaj").innerHTML=
+    `<div class="${ok?'success':'error'}">${txt}</div>`;
+}
+</script>
+
+</body>
+</html>
