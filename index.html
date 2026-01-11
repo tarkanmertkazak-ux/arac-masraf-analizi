@@ -1,17 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Aracını Bil | Giriş</title>
 
 <style>
 /* ===== GENEL ===== */
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0;
   height:100vh;
-  font-family:Arial, sans-serif;
+  font-family:Inter,Arial,Helvetica,sans-serif;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   display:flex;
   justify-content:center;
@@ -19,198 +20,206 @@ body{
   color:#fff;
 }
 
-/* ===== ANA KAPSAYICI ===== */
+/* ===== KART KAPSAYICI ===== */
 .wrapper{
   width:100%;
   max-width:420px;
+  padding:20px;
   text-align:center;
 }
 
-/* ===== BAŞLIK ===== */
+/* ===== LOGO / BAŞLIK ===== */
 .logo{
-  margin-bottom:25px;
+  margin-bottom:20px;
 }
 .logo h1{
   margin:0;
-  font-size:36px;
-  font-weight:bold;
+  font-size:34px;
+  font-weight:700;
+  letter-spacing:0.2px;
 }
 .logo p{
   margin-top:8px;
-  font-size:15px;
-  opacity:.85;
+  font-size:14px;
+  opacity:.88;
+  color:rgba(255,255,255,0.9);
 }
 
 /* ===== KART ===== */
 .box{
-  background:rgba(255,255,255,0.12);
-  backdrop-filter:blur(12px);
-  padding:30px;
-  border-radius:16px;
-  box-shadow:0 20px 40px rgba(0,0,0,.35);
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  padding:28px;
+  border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.35);
 }
 
 /* ===== FORM ===== */
 input{
   width:100%;
-  padding:14px;
-  margin-top:14px;
+  padding:12px 14px;
+  margin-top:12px;
   border-radius:10px;
-  border:none;
+  border:1px solid rgba(255,255,255,0.06);
   outline:none;
-  font-size:16px;
+  font-size:15px;
+  color:#0f1724;
+  background:rgba(255,255,255,0.95);
 }
 
-input::placeholder{
-  color:#999;
-}
+input::placeholder{ color:#97a0ab; }
 
 /* ===== BUTONLAR ===== */
+.row{display:flex;gap:10px;margin-top:12px}
 button{
-  width:100%;
-  padding:14px;
-  margin-top:14px;
+  padding:12px 14px;
   border:none;
   border-radius:10px;
-  font-size:16px;
+  font-size:15px;
   cursor:pointer;
 }
-
 .btn-primary{
-  background:#4aa3ff;
+  flex:1;
+  background:linear-gradient(90deg,#4aa3ff,#2b8cff);
   color:#fff;
-  font-weight:bold;
+  font-weight:700;
+  box-shadow:0 6px 18px rgba(42,133,255,0.18);
 }
-
 .btn-secondary{
-  background:#ecf0f1;
-  color:#2c3e50;
-}
-
-button:hover{
-  opacity:.9;
+  flex:1;
+  background:#ffffff;
+  color:#163047;
+  font-weight:600;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
 }
 
 /* ===== MESAJ ===== */
-.error{
-  color:#ff7675;
-  margin-top:12px;
-  font-size:14px;
-}
-.success{
-  color:#2ecc71;
-  margin-top:12px;
-  font-size:14px;
-}
+.msg{margin-top:12px;min-height:22px;font-size:14px}
+.error{color:#ffb3b3}
+.success{color:#baf5c6}
 
-/* ===== FOOTER ===== */
-.footer{
-  margin-top:18px;
-  font-size:12px;
-  opacity:.7;
+/* ===== ALT BİLGİ ===== */
+.footer{margin-top:16px;font-size:13px;opacity:.85;color:rgba(255,255,255,0.9)}
+.small{font-size:12px;color:rgba(255,255,255,0.75);margin-top:8px}
+
+/* responsive */
+@media (max-width:420px){
+  .box{padding:18px;border-radius:12px}
+  .logo h1{font-size:28px}
 }
 </style>
 </head>
 
 <body>
-
 <div class="wrapper">
-
   <div class="logo">
     <h1>Aracını Bil</h1>
     <p>Paranı değil, veriyi dinle. Aracını bilinçli seç.</p>
   </div>
 
-  <div class="box">
-    <input type="email" id="email" placeholder="E-posta">
-    <input type="password" id="password" placeholder="Şifre">
+  <div class="box" role="region" aria-label="Giriş Kutu">
+    <input type="email" id="email" placeholder="E-posta" autocomplete="username" />
+    <input type="password" id="password" placeholder="Şifre" autocomplete="current-password" />
 
-    <button class="btn-primary" onclick="giris()">Giriş Yap</button>
-    <button class="btn-secondary" onclick="kayit()">Kayıt Ol</button>
+    <div class="row">
+      <button class="btn-primary" onclick="giris()">Giriş Yap</button>
+      <button class="btn-secondary" onclick="kayit()">Kayıt Ol</button>
+    </div>
 
-    <div id="mesaj"></div>
+    <div id="mesaj" class="msg" aria-live="polite"></div>
+
+    <div class="small">Hesabın yok mu? Kayıt olunca otomatik giriş yapamazsın; kayıt sonrası giriş sayfasından devam et.</div>
   </div>
 
-  <div class="footer">
-    Gerçek kullanıcı deneyimlerine dayalı araç analizi
-  </div>
-
+  <div class="footer">Gerçek kullanıcı deneyimlerine dayalı araç analizi • Türkiye</div>
 </div>
 
 <script>
-// === KULLANICILAR ===
+// === KULLANICILAR (localStorage) ===
 let users = JSON.parse(localStorage.getItem("users")) || [];
 
-// === HASH ===
+// === BASİT HASH FONKSİYONU (frontend-only, demo) ===
 function hash(str){
-  let h=0;
-  for(let i=0;i<str.length;i++){
-    h=(h<<5)-h+str.charCodeAt(i);
-    h|=0;
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (h << 5) - h + str.charCodeAt(i);
+    h |= 0;
   }
   return h.toString();
 }
 
+// === MESAJ GÖSTER ===
+function mesaj(txt, ok) {
+  const el = document.getElementById("mesaj");
+  el.innerHTML = `<div class="${ok ? 'success' : 'error'}">${txt}</div>`;
+}
+
 // === KAYIT ===
 function kayit(){
-  const email=document.getElementById("email").value.trim();
-  const password=document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-  if(!email||!password){
-    mesaj("Tüm alanları doldur",false);return;
+  if(!email || !password){
+    mesaj("Lütfen e-posta ve şifre girin.", false);
+    return;
   }
 
-  if(users.some(u=>u.email===email)){
-    mesaj("Bu e-posta zaten kayıtlı",false);return;
+  // ayni e-posta var mi?
+  if(users.some(u => u.email === email)){
+    mesaj("Bu e-posta zaten kayıtlı.", false);
+    return;
   }
 
+  // kullanıcıyı ekle
   users.push({
     email,
-    passwordHash:hash(password)
+    passwordHash: hash(password),
+    createdAt: new Date().toISOString()
   });
 
-  localStorage.setItem("users",JSON.stringify(users));
+  localStorage.setItem("users", JSON.stringify(users));
 
-  // 🔴 ÇOK ÖNEMLİ: YENİ KAYITTA HER ŞEY SIFIRLANIR
+  // kayıt sonrası başlangıç temizliği (kullanıcı yeni kayıt yaptığında bazı seçimler sıfırlansın)
   localStorage.removeItem("secimYapildi");
   localStorage.removeItem("kullaniciTipi");
   localStorage.removeItem("aktifArac");
 
-  mesaj("Kayıt başarılı. Şimdi giriş yapabilirsin.",true);
+  mesaj("Kayıt başarılı. Şimdi giriş yapabilirsiniz.", true);
 }
 
 // === GİRİŞ ===
 function giris(){
-  const email=document.getElementById("email").value.trim();
-  const password=document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-  const user=users.find(u=>u.email===email);
+  if(!email || !password){
+    mesaj("Lütfen e-posta ve şifre girin.", false);
+    return;
+  }
+
+  const user = users.find(u => u.email === email);
   if(!user){
-    mesaj("Bu e-posta kayıtlı değil",false);return;
+    mesaj("Bu e-posta kayıtlı değil.", false);
+    return;
   }
 
-  if(user.passwordHash!==hash(password)){
-    mesaj("Şifre yanlış",false);return;
+  if(user.passwordHash !== hash(password)){
+    mesaj("Şifre yanlış.", false);
+    return;
   }
 
-  // === GİRİŞ BAŞARILI ===
-  localStorage.setItem("userEmail",email);
+  // başarılı giriş: oturum bilgisi saklanır
+  localStorage.setItem("userEmail", email);
 
-  // 🔴 SEÇİM YAPILMADIYSA MUTLAKA SECIM.HTML
+  // yönlendirme mantığı:
+  // - eğer kullanıcı daha önce 'secimYapildi' anahtarını oluşturmadıysa secim.html'e gönder
+  // - aksi takdirde arac-sec.html'e gönder
   if(!localStorage.getItem("secimYapildi")){
-    window.location.href="secim.html";
-  }else{
-    window.location.href="arac-sec.html";
+    window.location.href = "secim.html";
+  } else {
+    window.location.href = "arac-sec.html";
   }
-}
-
-// === MESAJ ===
-function mesaj(txt,ok){
-  document.getElementById("mesaj").innerHTML=
-    `<div class="${ok?'success':'error'}">${txt}</div>`;
 }
 </script>
-
 </body>
-
 </html>
