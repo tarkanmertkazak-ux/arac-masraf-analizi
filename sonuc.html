@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Araç Masraf Analizi</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1e2a38,#2f6f85,#4fb0c6);
+  padding:20px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  background:#ffffff;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 0 20px rgba(0,0,0,.1);
+}
+
+h1,h3{margin-top:20px}
+
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
+  cursor:pointer;
+  margin:6px 4px;
+}
+
+.primary{background:#3498db;color:#fff}
+.success{background:#2ecc71;color:#fff}
+.danger{background:#e74c3c;color:#fff}
+.gray{background:#7f8c8d;color:#fff}
+
+.bar-container{
+  width:100%;
+  background:#ecf0f1;
+  border-radius:8px;
+  margin-bottom:10px;
+}
+.bar{
+  height:24px;
+  line-height:24px;
+  padding-left:10px;
+  border-radius:8px;
+  font-size:14px;
+  color:#fff;
+}
+
+/* .low{background:#2ecc71}
+.mid{background:#f1c40f}
+.high{background:#e74c3c}
+.neutral{background:#95a5a6} */
+
+.kendi-box{
+  background:#f9f9f9;
+  padding:12px;
+  border-radius:8px;
+}
+.kendi-item{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.gray{
+  background:linear-gradient(90deg,#2f6f85,#4fb0c6);
+}
+/* OKUNAKLI GRAFİK BARLARI */
+.bar{
+  background:linear-gradient(90deg,#2f6f85,#4fb0c6);
+  color:#ffffff;
+  font-weight:600;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+
+/* Satış süresi barları */
+.bar.satis{
+  background:linear-gradient(90deg,#3b82f6,#60a5fa);
+}
+
+/* Masraf türleri */
+.bar.masraf{
+  background:linear-gradient(90deg,#2563eb,#38bdf8);
+}
+
+/* KM aralıkları */
+.bar.km{
+  background:linear-gradient(90deg,#0ea5a4,#5eead4);
+}
+.low{background:#2ecc71}
+.mid{background:#f1c40f}
+.high{background:#e74c3c}
+.neutral{background:#2f6f85,#5eead4}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1 id="baslik"></h1>
+
+<button class="danger" id="yasadimBtn">Bu aracı kullanırken masraf yaşadım</button>
+<button class="success" id="yasamadimBtn">Bu aracı kullanırken masraf yaşamadım</button>
+<button class="gray" onclick="location.href='arac-sec.html'">← Araç Seçimine Dön</button>
+
+<hr>
+
+<div id="istatistik"></div>
+
+<h3>Masraf Riski</h3>
+<div id="riskGrafik"></div>
+
+<h3>Masraf Türleri</h3>
+<div id="masrafGrafik"></div>
+
+<h3>Bin KM Aralıkları</h3>
+<div id="kmGrafik"></div>
+
+<h3>Satış Süresi</h3>
+<div id="satisGrafik"></div>
+
+<h3>Senin Bildirimin</h3>
+<div id="kendiBildirim" class="kendi-box"></div>
+
+</div>
+
+<script>
+// GİRİŞ
+if(!localStorage.getItem("userEmail")){
+  location.href="index.html";
+}
+
+// USER
+let userId = localStorage.getItem("userId");
+if(!userId){
+  userId="u_"+Math.random().toString(36).substr(2,9);
+  localStorage.setItem("userId",userId);
+}
+
+// ARAÇ
+const arac = JSON.parse(localStorage.getItem("aktifArac"));
+if(!arac) location.href="arac-sec.html";
+
+const key = `${arac.marka}-${arac.model}-${arac.yil}-${arac.motor}`;
+document.getElementById("baslik").innerText =
+`${arac.marka} ${arac.model} (${arac.yil}) - ${arac.motor}`;
+
+// VERİLER
+let masraflar = JSON.parse(localStorage.getItem(key+"_masraf")) || [];
+let sorunsuz = JSON.parse(localStorage.getItem(key+"_sorunsuz")) || [];
+
+// RENDER
+function render(){
+
+  // 🔹 GEÇERLİ SORUNSUZLAR
+  const gecerliSorunsuz = sorunsuz.filter(s=>s.gecerli && s.satis);
+
+  // 🔹 KULLANICI SAYISI
+  const toplamKullanici = new Set([
+    ...masraflar.map(m=>m.userId),
+    ...gecerliSorunsuz.map(s=>s.userId)
+  ]).size;
+
+  const masrafci = new Set(masraflar.map(m=>m.userId)).size;
+  const riskOran = toplamKullanici
+    ? Math.round((masrafci / toplamKullanici) * 100)
+    : 0;
+
+  document.getElementById("istatistik").innerHTML =
+    `<strong>${toplamKullanici} kullanıcıdan ${masrafci} kullanıcı masraf bildirdi</strong>`;
+
+  let riskClass="low";
+  if(riskOran>60) riskClass="high";
+  else if(riskOran>25) riskClass="mid";
+
+  document.getElementById("riskGrafik").innerHTML =
+    `<div class="bar-container">
+      <div class="bar ${riskClass}" style="width:${riskOran}%">
+        Masraf Riski %${riskOran}
+      </div>
+    </div>`;
+
+  // 🔹 MASRAF TÜRLERİ
+  const turSayac={};
+  masraflar.forEach(m=>turSayac[m.tur]=(turSayac[m.tur]||0)+1);
+
+  document.getElementById("masrafGrafik").innerHTML =
+    Object.keys(turSayac).length
+    ? Object.keys(turSayac).map(t=>{
+        const y=Math.round(turSayac[t]/masraflar.length*100);
+        return `<div class="bar-container">
+          <div class="bar neutral" style="width:${y}%">${t} %${y}</div>
+        </div>`;
+      }).join("")
+    : "<em>Masraf verisi yok</em>";
+
+  // 🔹 KM
+  const kmSayac={};
+  masraflar.forEach(m=>kmSayac[m.km]=(kmSayac[m.km]||0)+1);
+
+  document.getElementById("kmGrafik").innerHTML =
+    Object.keys(kmSayac).length
+    ? Object.keys(kmSayac).map(k=>{
+        const y=Math.round(kmSayac[k]/masraflar.length*100);
+        return `<div class="bar-container">
+          <div class="bar neutral" style="width:${y}%">${k} %${y}</div>
+        </div>`;
+      }).join("")
+    : "<em>KM verisi yok</em>";
+
+  // 🔹 SATIŞ SÜRESİ (💥 ARTIK ÇALIŞIYOR)
+  const satisSayac={"0-15":0,"15-30":0,"30+":0};
+
+  masraflar.forEach(m=>{
+    if(m.satis) satisSayac[m.satis]++;
+  });
+  gecerliSorunsuz.forEach(s=>{
+    if(s.satis) satisSayac[s.satis]++;
+  });
+
+  const toplamSatis = Object.values(satisSayac).reduce((a,b)=>a+b,0);
+
+  document.getElementById("satisGrafik").innerHTML =
+    toplamSatis
+    ? Object.keys(satisSayac).map(k=>{
+        const y=Math.round(satisSayac[k]/toplamSatis*100);
+        return `<div class="bar-container">
+          <div class="bar neutral" style="width:${y}%">${k} gün %${y}</div>
+        </div>`;
+      }).join("")
+    : "<em>Satış süresi verisi yok</em>";
+
+  // 🔹 KENDİ BİLDİRİM
+  const alan=document.getElementById("kendiBildirim");
+  const benim=masraflar.map((m,i)=>({...m,i})).filter(m=>m.userId===userId);
+
+  if(benim.length){
+    
+    alan.innerHTML=benim.map(m=>
+      `<div class="kendi-item">
+        ${m.tur} (${m.km})
+        <button class="danger" onclick="silMasraf(${m.i})">Sil</button>
+      </div>`
+    ).join("");
+  }else{
+    alan.innerHTML="Henüz bildirim yapmadın.";
+  }
+}
+
+function silMasraf(i){
+  masraflar.splice(i,1);
+  localStorage.setItem(key+"_masraf",JSON.stringify(masraflar));
+  render();
+}
+
+render();
+</script>
+<script type="module">
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db } from "./firebase.js";
+
+/*
+  ⚠️ DOKUNMA
+  Bu kod, mevcut localStorage yapını BOZMADAN
+  Firebase ile senkronizasyon yapar
+*/
+
+// ARAÇ ANAHTARI (ZATEN VAR OLAN KEY KULLANILIYOR)
+const firebaseRef = doc(db, "cars", key);
+
+// 🔹 Firebase → LocalStorage (sayfa ilk açıldığında)
+async function firebaseOku(){
+  try{
+    const snap = await getDoc(firebaseRef);
+    if(snap.exists()){
+      const data = snap.data();
+
+      if(data.masraflar){
+        masraflar = data.masraflar;
+        localStorage.setItem(key+"_masraf", JSON.stringify(masraflar));
+      }
+
+      if(data.sorunsuz){
+        sorunsuz = data.sorunsuz;
+        localStorage.setItem(key+"_sorunsuz", JSON.stringify(sorunsuz));
+      }
+
+      render();
+    }
+  }catch(e){
+    console.error("Firebase okuma hatası:", e);
+  }
+}
+firebaseOku();
+
+// 🔹 LocalStorage → Firebase (manuel çağrılır)
+async function firebaseYaz(){
+  try{
+    await setDoc(firebaseRef,{
+      masraflar: masraflar || [],
+      sorunsuz: sorunsuz || []
+    });
+  }catch(e){
+    console.error("Firebase yazma hatası:", e);
+  }
+}
+
+// 🔹 MEVCUT FONKSİYONLARA DOKUNMADAN YAKALAMA
+// Masraf silinince Firebase'e de yaz
+const _silMasraf = window.silMasraf;
+window.silMasraf = function(i){
+  _silMasraf(i);
+  firebaseYaz();
+};
+
+// İlk render sonrası Firebase’e ilk kayıt (boşsa)
+firebaseYaz();
+</script>
+</body>
+</html>

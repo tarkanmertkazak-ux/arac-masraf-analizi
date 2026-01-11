@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Aracını Bil</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1f2933,#111827);
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.container{
+  max-width:420px;
+  width:100%;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
+  padding:30px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  text-align:center;
+}
+
+.logo{
+  font-size:34px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.slogan{
+  font-size:15px;
+  opacity:.85;
+  margin-bottom:25px;
+}
+
+.features{
+  text-align:left;
+  margin-bottom:20px;
+}
+
+.features div{
+  margin-bottom:10px;
+  font-size:14px;
+}
+
+.features span{
+  color:#38bdf8;
+  margin-right:6px;
+}
+
+.legal{
+  font-size:12px;
+  opacity:.7;
+  background:rgba(0,0,0,.25);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:20px;
+  line-height:1.4;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#38bdf8;
+  color:#0f172a;
+  font-weight:600;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+.footer{
+  margin-top:12px;
+  font-size:12px;
+  opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">Aracını Bil</div>
+  <div class="slogan">
+    BİNLERCE KULLANICI DENEYİMİNİ ANALİZ ET.<br>
+    Aracını bilinçli seç.
+  </div>
+
+  <div class="features">
+    <div><span>✔</span> Gerçek kullanıcı deneyimleri</div>
+    <div><span>✔</span> Model & motor bazlı analiz</div>
+    <div><span>✔</span> Masraf riski yüzdesi</div>
+    <div><span>✔</span> Satış süresi istatistikleri</div>
+    <div><span>✔</span> Ücretsiz & anonim kullanım</div>
+  </div>
+
+  <!-- 🔒 HUKUKİ BİLDİRİM -->
+  <div class="legal">
+    Bu platformda sunulan bilgiler, kullanıcıların kendi deneyimlerine
+    dayalı olarak paylaştığı verilerden oluşmaktadır.<br><br>
+    Araç alım-satım veya kullanım kararları için kesin bir tavsiye
+    niteliği taşımaz. Nihai karar ve sorumluluk tamamen kullanıcıya aittir.
+  </div>
+
+  <button onclick="devam()">Devam Et</button>
+
+  <div class="footer">
+    Devam ederek bilgilendirme metnini kabul etmiş olursun.
+  </div>
+
+</div>
+
+<script>
+function devam(){
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

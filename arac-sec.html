@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Araç Seç</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.box{
+  width:420px;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  padding:30px;
+  border-radius:20px;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.12),
+    0 5px 15px rgba(0,0,0,.08);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:22px;
+  color:#2c3e50;
+  letter-spacing:.3px;
+}
+
+select,button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  font-size:15px;
+  border-radius:8px;
+}
+
+select{
+  border:1px solid #ccc;
+}
+
+select:disabled{
+  background:#f1f1f1;
+  color:#888;
+}
+
+button{
+  border:none;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{opacity:.9}
+
+#devamBtn{
+  background:#2c3e50;
+  color:#fff;
+  margin-top:18px;
+}
+
+#kendiBtn{
+  background:#16a085;
+  color:#fff;
+}
+/* Sayfa genelinde yazı imlecini kapat */
+body{
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Ama select ve inputlar ÇALIŞSIN */
+select,
+input{
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+/* === UX DÜZELTMESİ: Yazı imlecini kapat === */
+body{
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Select ve inputlar normal çalışsın */
+select,
+input{
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+
+/* İmleç hissi */
+.box{
+  cursor: default;
+}
+button{
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Araç Seçimi</h2>
+
+  <select id="marka">
+    <option value="">Marka Seç</option>
+  </select>
+
+  <select id="model" disabled>
+    <option value="">Model Seç</option>
+  </select>
+
+  <select id="yil" disabled>
+    <option value="">Yıl / Kasa Seç</option>
+  </select>
+
+  <select id="motor" disabled>
+    <option value="">Motor Seç</option>
+  </select>
+
+  <button id="devamBtn">Analizi Gör</button>
+  <button id="kendiBtn">Kendi Aracım İçin Bilgi Gir</button>
+</div>
+
+<script src="cars-data.js"></script>
+
+<script>
+// === GİRİŞ KONTROL ===
+if(!localStorage.getItem("userEmail")){
+  location.href="index.html";
+}
+
+// === SELECTLER ===
+const marka = document.getElementById("marka");
+const model = document.getElementById("model");
+const yil   = document.getElementById("yil");
+const motor = document.getElementById("motor");
+
+// === MARKALARI DOLDUR ===
+Object.keys(CARS).sort().forEach(m=>{
+  const o=document.createElement("option");
+  o.value=m;
+  o.textContent=m;
+  marka.appendChild(o);
+});
+
+// === MARKA SEÇİLDİ ===
+marka.onchange=()=>{
+  model.disabled = yil.disabled = motor.disabled = true;
+
+  model.innerHTML='<option value="">Model Seç</option>';
+  yil.innerHTML='<option value="">Yıl / Kasa Seç</option>';
+  motor.innerHTML='<option value="">Motor Seç</option>';
+
+  if(!marka.value) return;
+
+  Object.keys(CARS[marka.value]).forEach(md=>{
+    const o=document.createElement("option");
+    o.value=md;
+    o.textContent=md;
+    model.appendChild(o);
+  });
+
+  model.disabled=false;
+};
+
+// === MODEL SEÇİLDİ ===
+model.onchange=()=>{
+  yil.disabled = motor.disabled = true;
+  yil.innerHTML='<option value="">Yıl / Kasa Seç</option>';
+  motor.innerHTML='<option value="">Motor Seç</option>';
+
+  if(!model.value) return;
+
+  Object.keys(CARS[marka.value][model.value]).forEach(y=>{
+    const o=document.createElement("option");
+    o.value=y;
+    o.textContent=y;
+    yil.appendChild(o);
+  });
+
+  yil.disabled=false;
+};
+
+// === YIL SEÇİLDİ ===
+yil.onchange=()=>{
+  motor.disabled=true;
+  motor.innerHTML='<option value="">Motor Seç</option>';
+
+  if(!yil.value) return;
+
+  CARS[marka.value][model.value][yil.value].forEach(m=>{
+    const o=document.createElement("option");
+    o.value=m.motor;
+    o.textContent=`${m.motor} (${m.yakit})`;
+    motor.appendChild(o);
+  });
+
+  motor.disabled=false;
+};
+
+// === ANALİZE GİT ===
+document.getElementById("devamBtn").onclick=()=>{
+  if(!marka.value || !model.value || !yil.value || !motor.value){
+    alert("Lütfen tüm seçimleri yap");
+    return;
+  }
+
+  const arac={
+    marka:marka.value,
+    model:model.value,
+    yil:yil.value,
+    motor:motor.value
+  };
+
+  localStorage.setItem("aktifArac",JSON.stringify(arac));
+  location.href="sonuc.html";
+};
+
+// === KENDİ ARACIM ===
+document.getElementById("kendiBtn").onclick=()=>{
+  location.href="kendi-aracim.html";
+};
+</script>
+<script type="module" src="firebase.js"></script>
+</body>
+</html>

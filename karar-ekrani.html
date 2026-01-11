@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kullanıcı Seçimi</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#f7f7f7;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box{
+  background:#fff;
+  padding:30px;
+  width:360px;
+  border-radius:8px;
+  text-align:center;
+}
+button{
+  width:100%;
+  padding:14px;
+  margin-top:15px;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Sana en uygun deneyimi hazırlayalım</h2>
+
+  <button onclick="ilkArac()">İlk arabamı arıyorum</button>
+  <button onclick="aracSattim()">Daha önce araç sattım</button>
+</div>
+
+<script>
+if (localStorage.getItem("kullaniciTipi")) {
+  window.location.href = "arac-sec.html";
+}
+
+function ilkArac(){
+  localStorage.setItem("kullaniciTipi","ilk");
+  window.location.href = "arac-sec.html";
+}
+
+function aracSattim(){
+  localStorage.setItem("kullaniciTipi","satti");
+
+  if (localStorage.getItem("satisBilgisiGirildi")) {
+    window.location.href = "arac-sec.html";
+  } else {
+    window.location.href = "arac-satis.html";
+  }
+}
+</script>
+
+</body>
+</html>
