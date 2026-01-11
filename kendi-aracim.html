@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -214,4 +215,226 @@ kaydetBtn.onclick=()=>{
 </script>
 <script type="module" src="firebase.js"></script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kendi Aracım</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1e2a38,#2f3e52);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.box{
+  background:#fff;
+  width:420px;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 30px 60px rgba(0,0,0,.35);
+}
+
+h2{text-align:center;margin-bottom:15px}
+
+select,button{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  font-size:16px;
+}
+
+select:disabled{
+  background:#eee;
+  color:#888;
+}
+
+button{
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+#btnMasrafVar{background:#e74c3c;color:#fff}
+#btnMasrafYok{background:#2ecc71;color:#fff}
+#kaydetBtn{background:#2c3e50;color:#fff}
+
+hr{margin:15px 0}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Kendi Aracın</h2>
+
+<select id="marka"><option value="">Marka Seç</option></select>
+<select id="model" disabled><option value="">Model Seç</option></select>
+<select id="yil" disabled><option value="">Yıl / Kasa Seç</option></select>
+<select id="motor" disabled><option value="">Motor Seç</option></select>
+
+<hr>
+
+<button id="btnMasrafVar">Masraf yaşadım</button>
+<button id="btnMasrafYok">Masraf yaşamadım</button>
+
+<div id="masrafAlan" style="display:none">
+  <select id="masrafTuru">
+    <option value="">Masraf Türü</option>
+    <option>Motor</option>
+    <option>Şanzıman</option>
+    <option>Elektrik</option>
+    <option>Süspansiyon</option>
+    <option>Fren</option>
+  </select>
+
+  <select id="masrafKm">
+    <option value="">Kaç bin km’de ne oldu?</option>
+    <option>0–50</option>
+    <option>50–100</option>
+    <option>100–150</option>
+    <option>150–200</option>
+    <option>200–250</option>
+    <option>250–300</option>
+    <option>300+</option>
+  </select>
+</div>
+
+<div id="sorunsuzAlan" style="display:none">
+  <select id="sorunsuzKm">
+    <option value="">Bu aracı kaç km kullandın?</option>
+    <option>0–10</option>
+    <option>10–50</option>
+    <option>50–100</option>
+    <option>100–150</option>
+    <option>150–200</option>
+    <option>200–250</option>
+    <option>250–300</option>
+    <option>300+</option>
+  </select>
+</div>
+
+<hr>
+
+<select id="satisGun">
+  <option value="">Bu aracı kaç günde sattın? (opsiyonel)</option>
+  <option>0-15</option>
+  <option>15-30</option>
+  <option>30+</option>
+</select>
+
+<button id="kaydetBtn">Kaydet ve Analize Git</button>
+</div>
+
+<script src="cars-data.js"></script>
+
+<script>
+// GİRİŞ
+if(!localStorage.getItem("userEmail")){
+  location.href="index.html";
+}
+
+// USER
+let userId = localStorage.getItem("userId");
+if(!userId){
+  userId="u_"+Math.random().toString(36).substr(2,9);
+  localStorage.setItem("userId",userId);
+}
+
+// ZİNCİR SEÇİM
+const marka=document.getElementById("marka");
+const model=document.getElementById("model");
+const yil=document.getElementById("yil");
+const motor=document.getElementById("motor");
+
+Object.keys(CARS).sort().forEach(m=>{
+  const o=document.createElement("option");
+  o.value=o.textContent=m;
+  marka.appendChild(o);
+});
+
+marka.onchange=()=>{
+  model.disabled=yil.disabled=motor.disabled=true;
+  model.innerHTML='<option value="">Model Seç</option>';
+  Object.keys(CARS[marka.value]||{}).forEach(x=>{
+    const o=document.createElement("option");
+    o.value=o.textContent=x;
+    model.appendChild(o);
+  });
+  model.disabled=false;
+};
+
+model.onchange=()=>{
+  yil.disabled=motor.disabled=true;
+  yil.innerHTML='<option value="">Yıl / Kasa Seç</option>';
+  Object.keys(CARS[marka.value][model.value]||{}).forEach(x=>{
+    const o=document.createElement("option");
+    o.value=o.textContent=x;
+    yil.appendChild(o);
+  });
+  yil.disabled=false;
+};
+
+yil.onchange=()=>{
+  motor.disabled=true;
+  motor.innerHTML='<option value="">Motor Seç</option>';
+  CARS[marka.value][model.value][yil.value].forEach(m=>{
+    const o=document.createElement("option");
+    o.value=m.motor;
+    o.textContent=`${m.motor} (${m.yakit})`;
+    motor.appendChild(o);
+  });
+  motor.disabled=false;
+};
+
+// MASRAF DURUMU
+let tip=null;
+btnMasrafVar.onclick=()=>{
+  tip="masraf";
+  masrafAlan.style.display="block";
+  sorunsuzAlan.style.display="none";
+};
+btnMasrafYok.onclick=()=>{
+  tip="sorunsuz";
+  sorunsuzAlan.style.display="block";
+  masrafAlan.style.display="none";
+};
+
+// KAYDET
+kaydetBtn.onclick=()=>{
+  if(!marka.value||!model.value||!yil.value||!motor.value){
+    alert("Araç bilgileri eksik"); return;
+  }
+  if(!tip){ alert("Masraf durumu seç"); return; }
+
+  const arac={marka:marka.value,model:model.value,yil:yil.value,motor:motor.value};
+  localStorage.setItem("aktifArac",JSON.stringify(arac));
+
+  const key=`${arac.marka}-${arac.model}-${arac.yil}-${arac.motor}`;
+  const satisGun=document.getElementById("satisGun").value;
+
+  if(tip==="masraf"){
+    if(!masrafTuru.value||!masrafKm.value){alert("Masraf bilgileri eksik");return;}
+    const d=JSON.parse(localStorage.getItem(key+"_masraf"))||[];
+    d.push({userId,tur:masrafTuru.value,km:masrafKm.value,satisGun});
+    localStorage.setItem(key+"_masraf",JSON.stringify(d));
+  }else{
+    if(!sorunsuzKm.value){alert("KM seç");return;}
+    const d=JSON.parse(localStorage.getItem(key+"_sorunsuz"))||[];
+    d.push({userId,km:sorunsuzKm.value,satisGun});
+    localStorage.setItem(key+"_sorunsuz",JSON.stringify(d));
+  }
+
+  location.href="sonuc.html";
+};
+</script>
+
+</body>
+>>>>>>> ee881aeade7eb990bf59063740a1cb5bc749c11e
 </html>

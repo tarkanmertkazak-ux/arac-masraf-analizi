@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -92,4 +93,100 @@ document.getElementById("sattimBtn").onclick = ()=>{
 </script>
 
 </body>
+=======
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Aramıza Hoş Geldin</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1e2a38,#2f3e52);
+}
+
+.box{
+  background:rgba(255,255,255,0.95);
+  padding:40px;
+  border-radius:18px;
+  width:420px;
+  text-align:center;
+  box-shadow:0 25px 50px rgba(0,0,0,.35);
+}
+
+h1{
+  margin-bottom:10px;
+  font-size:28px;
+}
+
+p{
+  color:#555;
+  margin-bottom:30px;
+}
+
+button{
+  width:100%;
+  padding:16px;
+  font-size:16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  margin-top:18px;
+  transition:.2s;
+}
+
+#ilkBtn{
+  background:#2ecc71;
+  color:#fff;
+}
+
+#sattimBtn{
+  background:#3498db;
+  color:#fff;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  opacity:.95;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h1>Aramıza Hoş Geldin 👋</h1>
+  <p>Sana uygun deneyimi sunabilmemiz için bir seçim yap.</p>
+
+  <button id="ilkBtn">İlk arabamı arıyorum</button>
+  <button id="sattimBtn">Daha önce araç sattım</button>
+</div>
+
+<script>
+// 🔒 GİRİŞ KONTROLÜ
+if(!localStorage.getItem("userEmail")){
+  location.href="index.html";
+}
+
+// 🟢 İLK ARABA
+document.getElementById("ilkBtn").onclick = ()=>{
+  localStorage.setItem("kullaniciTipi","ilk");
+  location.href="arac-sec.html";
+};
+
+// 🔵 DAHA ÖNCE SATTI
+document.getElementById("sattimBtn").onclick = ()=>{
+  localStorage.setItem("kullaniciTipi","satti");
+  location.href="kendi-aracim.html";
+};
+</script>
+
+</body>
+>>>>>>> ee881aeade7eb990bf59063740a1cb5bc749c11e
 </html>

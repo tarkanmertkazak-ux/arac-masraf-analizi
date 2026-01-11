@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -325,4 +326,321 @@ window.silMasraf = function(i){
 firebaseYaz();
 </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Araç Masraf Analizi</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1e2a38,#2f3e52);
+  padding:20px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 30px 60px rgba(0,0,0,.35);
+}
+
+h1{margin-top:0}
+
+.bar-container{
+  width:100%;
+  background:#e0e0e0;
+  margin-bottom:8px;
+  border-radius:6px;
+}
+.bar{
+  height:24px;
+  line-height:24px;
+  color:#fff;
+  padding-left:8px;
+  font-size:14px;
+  border-radius:6px;
+}
+
+.low{background:#2ecc71}
+.mid{background:#f1c40f}
+.high{background:#e74c3c}
+.gray{background:#34495e}
+
+button{
+  padding:12px 16px;
+  margin:6px 0;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+}
+
+#yasadimBtn{background:#e74c3c;color:#fff}
+#yasamadimBtn{background:#2ecc71;color:#fff}
+
+.popup-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.popup{
+  background:#fff;
+  padding:20px;
+  width:340px;
+  border-radius:16px;
+}
+
+.kendi-box{
+  background:#f4f6f8;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
+}
+.kendi-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+.kendi-item button{
+  background:#c0392b;
+  color:#fff;
+  padding:6px 10px;
+  font-size:13px;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1 id="baslik"></h1>
+
+<button id="yasadimBtn">Bu aracı kullanırken masraf yaşadım</button>
+<button id="yasamadimBtn">Bu aracı kullanırken masraf yaşamadım</button>
+
+<hr>
+
+<div id="istatistik"></div>
+
+<h3>Masraf Riski</h3>
+<div id="riskGrafik"></div>
+
+<h3>Masraf Türleri</h3>
+<div id="masrafGrafik"></div>
+
+<h3>Bin KM Aralıkları</h3>
+<div id="kmGrafik"></div>
+
+<h3>Senin Bildirimin</h3>
+<div id="kendiBildirim" class="kendi-box"></div>
+
+</div>
+
+<!-- MASRAF POPUP -->
+<div class="popup-bg" id="masrafPopup">
+<div class="popup">
+<h3>Masraf Bildir</h3>
+
+<select id="masrafTuru">
+  <option value="">Masraf Türü</option>
+  <option>Motor</option>
+  <option>Şanzıman</option>
+  <option>Elektrik</option>
+  <option>Süspansiyon</option>
+  <option>Fren</option>
+</select><br><br>
+
+<select id="km">
+  <option value="">Bin KM Aralığı</option>
+  <option>0–50</option>
+  <option>50–100</option>
+  <option>100–150</option>
+  <option>150–200</option>
+  <option>200–250</option>
+  <option>250–300</option>
+  <option>300+</option>
+</select><br><br>
+
+<button onclick="masrafEkle()">Ekle</button>
+<button onclick="kapat()">Vazgeç</button>
+</div>
+</div>
+
+<!-- SORUNSUZ POPUP -->
+<div class="popup-bg" id="sorunsuzPopup">
+<div class="popup">
+<h3>Masraf Yaşamadım</h3>
+
+<select id="sorunsuzKm">
+  <option value="">Bu aracı kaç km kullandın?</option>
+  <option>0–10</option>
+  <option>10–50</option>
+  <option>50–100</option>
+  <option>100–150</option>
+  <option>150–200</option>
+  <option>200–250</option>
+  <option>250–300</option>
+  <option>300+</option>
+</select><br><br>
+
+<button onclick="sorunsuzKaydet()">Kaydet</button>
+<button onclick="kapat()">Vazgeç</button>
+</div>
+</div>
+
+<script>
+// === GİRİŞ ===
+if(!localStorage.getItem("userEmail")){
+  location.href="index.html";
+}
+
+// === USER ===
+let userId = localStorage.getItem("userId");
+if(!userId){
+  userId="u_"+Math.random().toString(36).substr(2,9);
+  localStorage.setItem("userId",userId);
+}
+
+// === ARAÇ ===
+const arac = JSON.parse(localStorage.getItem("aktifArac"));
+if(!arac){ location.href="arac-sec.html"; }
+
+const key = `${arac.marka}-${arac.model}-${arac.yil}-${arac.motor}`;
+baslik.innerText = `${arac.marka} ${arac.model} (${arac.yil}) - ${arac.motor}`;
+
+// === VERİ ===
+let masraflar = JSON.parse(localStorage.getItem(key+"_masraf")) || [];
+let sorunsuzlar = JSON.parse(localStorage.getItem(key+"_sorunsuz")) || [];
+
+// === POPUP ===
+yasadimBtn.onclick=()=>{
+  sorunsuzlar = sorunsuzlar.filter(u=>u.userId!==userId);
+  localStorage.setItem(key+"_sorunsuz",JSON.stringify(sorunsuzlar));
+  masrafPopup.style.display="flex";
+};
+yasamadimBtn.onclick=()=>{
+  masraflar = masraflar.filter(m=>m.userId!==userId);
+  localStorage.setItem(key+"_masraf",JSON.stringify(masraflar));
+  sorunsuzPopup.style.display="flex";
+};
+function kapat(){
+  masrafPopup.style.display="none";
+  sorunsuzPopup.style.display="none";
+}
+
+// === MASRAF EKLE ===
+function masrafEkle(){
+  const tur = masrafTuru.value;
+  const km  = document.getElementById("km").value;
+  if(!tur || !km) return;
+
+  masraflar.push({userId,tur,km});
+  localStorage.setItem(key+"_masraf",JSON.stringify(masraflar));
+  kapat();
+  render();
+}
+
+// === MASRAF SİL ===
+function masrafSil(index){
+  masraflar.splice(index,1);
+  localStorage.setItem(key+"_masraf",JSON.stringify(masraflar));
+  render();
+}
+
+// === SORUNSUZ ===
+function sorunsuzKaydet(){
+  const km = sorunsuzKm.value;
+  if(!km) return;
+  const gecerli = !(km==="0–10" || km==="10–50");
+  sorunsuzlar.push({userId,km,gecerli});
+  localStorage.setItem(key+"_sorunsuz",JSON.stringify(sorunsuzlar));
+  kapat();
+  render();
+}
+
+// === RENDER ===
+function render(){
+  const gecerliSorunsuz = sorunsuzlar.filter(s=>s.gecerli);
+
+  const toplam = new Set([
+    ...masraflar.map(m=>m.userId),
+    ...gecerliSorunsuz.map(s=>s.userId)
+  ]).size;
+
+  const masrafci = new Set(masraflar.map(m=>m.userId)).size;
+  const oran = toplam ? Math.round((masrafci/toplam)*100) : 0;
+
+  istatistik.innerHTML =
+    `<strong>${toplam} kullanıcıdan ${masrafci} kullanıcı masraf bildirdi</strong>`;
+
+  let risk="low";
+  if(oran>60) risk="high";
+  else if(oran>25) risk="mid";
+
+  riskGrafik.innerHTML =
+    `<div class="bar-container">
+      <div class="bar ${risk}" style="width:${oran}%">
+        Masraf Riski %${oran}
+      </div>
+    </div>`;
+
+  // === MASRAF TÜRÜ GRAFİĞİ (YÜZDELER GERİ GELDİ) ===
+  const turSay={};
+  masraflar.forEach(m=>turSay[m.tur]=(turSay[m.tur]||0)+1);
+  let turHtml="";
+  for(let t in turSay){
+    const y=Math.round((turSay[t]/masraflar.length)*100);
+    turHtml+=`<div class="bar-container">
+      <div class="bar gray" style="width:${y}%">${t} %${y}</div>
+    </div>`;
+  }
+  masrafGrafik.innerHTML = turHtml || "<em>Veri yok</em>";
+
+  // === KM GRAFİĞİ ===
+  const kmSay={};
+  masraflar.forEach(m=>kmSay[m.km]=(kmSay[m.km]||0)+1);
+  let kmHtml="";
+  for(let k in kmSay){
+    const y=Math.round((kmSay[k]/masraflar.length)*100);
+    kmHtml+=`<div class="bar-container">
+      <div class="bar gray" style="width:${y}%">${k} %${y}</div>
+    </div>`;
+  }
+  kmGrafik.innerHTML = kmHtml || "<em>Veri yok</em>";
+
+  // === KENDİ BİLDİRİM + SİL BUTONU ===
+  const benim = masraflar
+    .map((m,i)=>({...m,index:i}))
+    .filter(m=>m.userId===userId);
+
+  if(benim.length){
+    kendiBildirim.innerHTML = benim.map(m=>`
+      <div class="kendi-item">
+        <span>${m.tur} (${m.km})</span>
+        <button onclick="masrafSil(${m.index})">Sil</button>
+      </div>
+    `).join("");
+  }else{
+    kendiBildirim.innerHTML="Henüz bildirim yapmadın.";
+  }
+}
+
+render();
+</script>
+
+</body>
+>>>>>>> ee881aeade7eb990bf59063740a1cb5bc749c11e
 </html>
